@@ -43,15 +43,15 @@ import edu.stanford.nlp.util.CoreMap;
 
 public class twitter4j extends ApplicationFrame implements ItemListener 
 {
-	protected static int foreign = 0;
-	protected static int indian = 0;
+	protected static int foreign = 0; //initialisation of the graph variables
+	protected static int indian = 0; 
 	protected static int irr = 0;
 	protected static int other = 0;
 	protected static int i_one=0,i_two=0,i_three=0,f_one=0,f_two=0,f_three=0;
 	public static final int flag1=0;
 	public static  Dialog dt;
 
-	public static int findSentiment(String tweet) {
+	public static int findSentiment(String tweet) {   //function that finds the polarity of the extracted tweet
 		StanfordCoreNLP pipeline;
 		pipeline = new StanfordCoreNLP("MyPropFile.properties");
 		int mainSentiment = 0;
@@ -97,7 +97,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	{
 		g.drawImage(img, 0, 0, null);
 	}
-	public void initi()
+	public void initi()  //Chart init parameters
 	{  setLayout(null);
 	setBackground(Color.orange);
 	setForeground(Color.blue);
@@ -156,7 +156,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		return dataset; 
 	}
 
-	public void itemStateChanged(ItemEvent e)
+	public void itemStateChanged(ItemEvent e) //awt radio button event handlers
 	{ 
 		if(stweet.getState() == true)
 		{flag=true;
@@ -168,10 +168,10 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		}
 	}
 
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws IOException{  
 		twitter4j chart = new twitter4j("Twitter data mining");
 		ConfigurationBuilder cb = new ConfigurationBuilder();
-		cb.setDebugEnabled(true)
+		cb.setDebugEnabled(true)   //OAuth parameters declaration
 		.setOAuthConsumerKey("6PmLszC988jCNUrpyv75yEqlN")
 		.setOAuthConsumerSecret("kK1Jtfj3BnvoJ8SMlcVkYWuBLo6qa7HZocCujlwcdjJ3ahUcac")
 		.setOAuthAccessToken("275418825-MpiHg0tAnrm26UtbFxsTHgdohB9ji3d2j2yGZinF")
@@ -289,7 +289,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 			public void actionPerformed(ActionEvent e){  
 
 				try {
-					if((exText.getText().length()<=3)||(exText.getText().matches("[0-9]+")))//testing if it contains invalid or desired minimum char
+					if((exText.getText().length()<=3)||(exText.getText().matches("[0-9]+")))//testing if input contains invalid or desired minimum char to carry out the operation
 					{
 						Frame window=new Frame();
 						dt=new Dialog(window,"alert",true);
@@ -314,7 +314,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 					}				
 				}
 				catch (TwitterException e1) {
-					// TODO Auto-generated catch block
+					
 					e1.printStackTrace();
 				}         
 
@@ -324,7 +324,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 				List<Status> statusList = null;
 				String user=exText.getText();
 				try {
-					if((exText.getText().length()<=3)||(exText.getText().matches("[0-9]+")))//testing if it contains invalid or desired minimum char
+					if((exText.getText().length()<=3)||(exText.getText().matches("[0-9]+")))//testing if input contains invalid or desired minimum char to carryout the operation
 					{
 						Frame window=new Frame();
 						dt=new Dialog(window,"alert",true);
@@ -403,7 +403,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		sbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
 				try {
-					if((userText.getText().length()<=3)||(userText.getText().matches("[0-9]+")))//testing if it contains invalid or desired minimum char
+					if((userText.getText().length()<=3)||(userText.getText().matches("[0-9]+")))//testing if input contains invalid or desired minimum char to carryout the operation
 					{
 						Frame window=new Frame();
 						dt=new Dialog(window,"alert",true);
@@ -449,7 +449,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 
 		cbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
-				chartd("Comparision between Indian and Foreign twitter users");
+				chartd("Comparision between Indian and Foreign twitter users"); //Chart name passed to the constructor
 				pack( );        
 				RefineryUtilities.centerFrameOnScreen(mainFrame);        
 				setVisible( true );         
@@ -473,7 +473,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 
 
 
-	public static String searchTweet(Twitter tw, String word) throws IOException
+	public static String searchTweet(Twitter tw, String word) throws IOException //function which carries out the separation of the tweet based on location
 	{
 		String data = " ";
 		String state="INDIA india Andhra Pradesh Arunachal Pradesh Assam Bihar Chhattisgarh Goa Gujarat Haryana Himachal Pradesh Jammu and Kashmir Jharkhand Karnataka Kerala Madhya Pradesh Maharashtra Manipur Meghalaya Mizoram Nagaland Orissa Punjab Rajasthan Sikkim TamilNadu Tripura Uttarakhand Uttar Pradesh West Bengal Tamil Nadu Tripura Andaman and Nicobar Islands Chandigarh Dadra and Nagar Haveli Daman and Diu Delhi Lakshadweep Pondicherry ";
