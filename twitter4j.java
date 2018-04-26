@@ -41,15 +41,16 @@ import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
 
+@SuppressWarnings("serial")
 public class twitter4j extends ApplicationFrame implements ItemListener 
 {
-	protected static int foreign = 0; //initialisation of the graph variables
+	protected static int foreign = 0; //Initialization of the graph variables
 	protected static int indian = 0; 
 	protected static int irr = 0;
 	protected static int other = 0;
-	protected static int i_one=0,i_two=0,i_three=0,f_one=0,f_two=0,f_three=0;
+	protected static int indiaOne=0,indiaTwo=0,indiaThree=0,foreignOne=0,foreignTwo=0,foreignThree=0;
 	public static final int flag1=0;
-	public static  Dialog dt;
+	public static  Dialog dialog;
 
 	public static int findSentiment(String tweet) {   //function that finds the polarity of the extracted tweet
 		StanfordCoreNLP pipeline;
@@ -61,7 +62,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 			for (CoreMap sentence : annotation
 					.get(CoreAnnotations.SentencesAnnotation.class)) {
 				Tree tree =sentence
-						.get(SentimentAnnotatedTree.class);
+						.get(SentimentCoreAnnotations.SentimentAnnotatedTree.class);
 				int sentiment = RNNCoreAnnotations.getPredictedClass(tree);
 				String partText = sentence.toString();
 				if (partText.length() > longest) {
@@ -89,10 +90,9 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	public Label statusLabel;
 	public Panel endPanel;
 	public Label lab;
-	Checkbox stweet,asearch;
+	Checkbox searchTweet,activeSearch;
 	CheckboxGroup radio;
 	Image img = Toolkit.getDefaultToolkit().createImage("bg.png");
-	private Container middlePanel;
 	public void paint(Graphics g)
 	{
 		g.drawImage(img, 0, 0, null);
@@ -116,54 +116,51 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	h2.setBounds(600,90,580,20);
 	this.setSize(new Dimension(2500,2500));
 	radio=new CheckboxGroup(); 
-	stweet=new Checkbox("Advanced Search Tweet",radio, false);
-	asearch=new Checkbox("Status update / Extract tweet",radio, false);
-	stweet.addItemListener(this);
-	asearch.addItemListener(this);
-	stweet.setBounds(850,130,165,15);
-	asearch.setBounds(850,170,266,15);
-	asearch.setFont(font);
-	stweet.setFont(font);
+	searchTweet=new Checkbox("Advanced Search Tweet",radio, false);
+	activeSearch=new Checkbox("Status update / Extract tweet",radio, false);
+	searchTweet.addItemListener(this);
+	activeSearch.addItemListener(this);
+	searchTweet.setBounds(850,130,165,15);
+	activeSearch.setBounds(850,170,266,15);
+	activeSearch.setFont(font);
+	searchTweet.setFont(font);
 	add(h1);
 	add(h2);
-	add(asearch);
-	add(stweet);
+	add(activeSearch);
+	add(searchTweet);
 	setVisible(true);
 	}
 
-	private CategoryDataset createDataset( )
-	{  
-		final DefaultCategoryDataset dataset = new DefaultCategoryDataset( );  
-		final String population="population";
-		final String india = "India";        
-		final String foreig = "Foreign";
-		final String neg = "Ind-Negative";        
-		final String neu = "Ind-Neutral";
-		final String pos="Ind-Positive";
-		final String f_neg = "For-Negative";        
-		final String f_neu = "For-Neutral";
-		final String f_pos="For-Positive";
-		final String pop="Indian";
-		final String popf="Foreign";
-		dataset.addValue(  indian,population,india);        
-		dataset.addValue(  foreign,population,foreig);        
-		dataset.addValue( i_one ,pop,pos);
-		dataset.addValue( i_two ,pop,neu);
-		dataset.addValue( i_three ,pop,neg);
-		dataset.addValue( f_one ,popf ,f_pos);
-		dataset.addValue( f_two , popf,f_neu );
-		dataset.addValue( f_three ,popf,f_neg);
+	private CategoryDataset createDataset( ){  
+		final DefaultCategoryDataset dataset = new DefaultCategoryDataset();  
+		final String population    = "population";
+		final String india         = "India";        
+		final String restOfIndia   = "Foreign";
+		final String iNegative 	   = "Ind-Negative";        
+		final String iNeutral      = "Ind-Neutral";
+		final String iPositive     = "Ind-Positive";
+		final String fNegative     = "For-Negative";        
+		final String fNeutral      = "For-Neutral";
+		final String fPositive     = "For-Positive";
+		final String iPopulation   = "Indian";
+		final String fPopulation   = "Foreign";
+		dataset.addValue( indian,       population,india);        
+		dataset.addValue( foreign,      population,restOfIndia);        
+		dataset.addValue( indiaOne,     iPopulation,iNegative);
+		dataset.addValue( indiaTwo,     iPopulation,iNeutral);
+		dataset.addValue( indiaThree,   iPopulation,iPositive);
+		dataset.addValue( foreignOne,   fPopulation,fNegative);
+		dataset.addValue( foreignTwo,   fPopulation,fNeutral );
+		dataset.addValue( foreignThree, fPopulation,fPositive);
 		return dataset; 
 	}
 
-	public void itemStateChanged(ItemEvent e) //awt radio button event handlers
-	{ 
-		if(stweet.getState() == true)
-		{flag=true;
-		prepareGUI();
+	public void itemStateChanged(ItemEvent e){ //awt radio button event handlers 
+		if(searchTweet.getState() == true){
+			flag=true;
+			prepareGUI();
 		}
-		else if(asearch.getState() == true)
-		{  
+		else if(activeSearch.getState() == true){  
 			GUI();
 		}
 	}
@@ -237,8 +234,8 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	public void showTextField(){
 		Twitter twitter = new TwitterFactory().getInstance();
 		Font font = new Font("Courier", Font.BOLD,16);
-		Label h1=new Label();
-		Label h2=new Label();
+		Label h1  = new Label();
+		Label h2  = new Label();
 		h1.setText("WELCOME TO TWITTER DATA MINING");
 		h1.setBounds(820,20,235,25);
 		h1.setBackground(Color.YELLOW);
@@ -261,18 +258,18 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		final TextField userText = new TextField(15);
 		Button upbutton = new Button("CLICK TO UPDATE");
 		upbutton.setFont(font);
-		Label exLabel = new Label();        
-		exLabel.setAlignment(Label.CENTER);
-		exLabel.setText("\nENTER THE USER HANDLE TO EXTRACT:");
-		exLabel.setBounds(520,70,80,25);
-		exLabel.setFont(font);
-		exLabel.setBackground(Color.YELLOW);
-		exLabel.setForeground(Color.BLACK);
-		final TextField exText = new TextField(15);
-		Button exbutton = new Button("CLICK TO EXTRACT");
+		Label extractLabel = new Label();        
+		extractLabel.setAlignment(Label.CENTER);
+		extractLabel.setText("\nENTER THE USER HANDLE TO EXTRACT:");
+		extractLabel.setBounds(520,70,80,25);
+		extractLabel.setFont(font);
+		extractLabel.setBackground(Color.YELLOW);
+		extractLabel.setForeground(Color.BLACK);
+		final TextField extractText = new TextField(15);
+		Button extractButton = new Button("CLICK TO EXTRACT");
 		upbutton.setFont(font);
-		exbutton.setFont(font);
-		Button close=new Button("Close");
+		extractButton.setFont(font);
+		Button close = new Button("Close");
 		close.setFont(font);
 		header.add(h1);
 		header.add(h2);
@@ -280,83 +277,69 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		controlPanel.add(userText);
 		controlPanel.add(upbutton);
 		controlPanel.add(close);
-		endPanel.add(exLabel);
-		endPanel.add(exText);
-		endPanel.add(exbutton);
+		endPanel.add(extractLabel);
+		endPanel.add(extractText);
+		endPanel.add(extractButton);
 		mainFrame.setVisible(true);
 
 		upbutton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
-
 				try {
-					if((exText.getText().length()<=3)||(exText.getText().matches("[0-9]+")))//testing if input contains invalid or desired minimum char to carry out the operation
-					{
+					if((extractText.getText().length()<=3)||(extractText.getText().matches("[0-9]+"))){//testing if input contains invalid or desired minimum char to carry out the operation
 						Frame window=new Frame();
-						dt=new Dialog(window,"alert",true);
-						dt.setLayout(new FlowLayout());
-						Button ok=new Button("OK");
-						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dt.setVisible(false);}});
-						dt.add(new Label("Click OK and give valid input"));
-						dt.setTitle("Check input");
-						dt.setBounds(900,350,900,500);
-						dt.setBackground(null);
-						dt.add(ok);
-						dt.pack();
-						dt.setVisible(true);
+						dialog=new Dialog(window,"alert",true);
+						dialog.setLayout(new FlowLayout());
+						Button ok=new Button("Close");
+						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dialog.setVisible(false);}});
+						dialog.add(new Label("Click Close and give valid input"));
+						dialog.setTitle("Check input");
+						dialog.setBounds(900,350,900,500);
+						dialog.setBackground(null);
+						dialog.add(ok);
+						dialog.pack();
+						dialog.setVisible(true);
 						System.exit(5);
 					}
-					else
-					{
-
+					else{
 						String status;
-						status = exText.getText();
+						status = extractText.getText();
 						Status status1 = twitter.updateStatus(status);
 					}				
 				}
 				catch (TwitterException e1) {
-					
 					e1.printStackTrace();
 				}         
-
 			}});
-		exbutton.addActionListener(new ActionListener() {
+		extractButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
 				List<Status> statusList = null;
-				String user=exText.getText();
+				String user=extractText.getText();
 				try {
-					if((exText.getText().length()<=3)||(exText.getText().matches("[0-9]+")))//testing if input contains invalid or desired minimum char to carryout the operation
-					{
+					if((extractText.getText().length()<=3)||(extractText.getText().matches("[0-9]+"))){//testing if input contains invalid or desired minimum char to carryout the operation
 						Frame window=new Frame();
-						dt=new Dialog(window,"alert",true);
-						dt.setLayout(new FlowLayout());
-						Button ok=new Button("OK");
-						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dt.setVisible(false);}});
-						dt.add(new Label("Click OK and give valid input"));
-						dt.setTitle("Check input");
-						dt.setBounds(900,350,900,500);
-						dt.setBackground(null);
-						dt.add(ok);
-						dt.pack();
-						dt.setVisible(true);
+						dialog=new Dialog(window,"alert",true);
+						dialog.setLayout(new FlowLayout());
+						Button ok=new Button("Close");
+						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dialog.setVisible(false);}});
+						dialog.add(new Label("Click Close and give valid input"));
+						dialog.setTitle("Check input");
+						dialog.setBounds(900,350,900,500);
+						dialog.setBackground(null);
+						dialog.add(ok);
+						dialog.pack();
+						dialog.setVisible(true);
 						System.exit(5);
 					}
-					else
-					{
-
+					else{
 						statusList = twitter.getUserTimeline(user);
 						for (Status status : statusList) {
 							System.out.println(status.toString());
 						}
 					}
 				}
-
 				catch (TwitterException e1) {
-
 					e1.printStackTrace();
-
 				}
-
-
 			}
 		});
 		close.addActionListener(new ActionListener() {
@@ -364,7 +347,6 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 				System.exit(0);
 			}
 		}); 
-
 	}
 
 
@@ -377,50 +359,48 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		h1.setBackground(Color.YELLOW);
 		h1.setForeground(Color.BLACK);
 		h1.setFont(font);
-		h2.setText("WELCOME TO SEARCH TWEET OPTION");
+		h2.setText("YOU ARE AT THE SEARCH TWEET OPTION");
 		h2.setBounds(750,90,230,55);
 		h2.setBackground(Color.YELLOW);
 		h2.setForeground(Color.BLACK);
 		searchLabel = new Label();        
 		searchLabel.setAlignment(Label.CENTER);
-		searchLabel.setText("\nENTER THE SEARCH WORD:");
+		searchLabel.setText("\nENTER THE TOPIC:");
 		searchLabel.setBounds(700,70,80,25);
 		searchLabel.setFont(font);
 		searchLabel.setBackground(Color.YELLOW);
 		searchLabel.setForeground(Color.BLACK);
 		final TextField userText = new TextField(15);
-		Button sbutton = new Button("CLICK TO SEARCH");
-		sbutton.setFont(font);
+		Button searchButton = new Button("CLICK TO SEARCH");
+		searchButton.setFont(font);
 		header.add(h1);
 		controlPanel.add(searchLabel);
 		controlPanel.add(userText);
-		controlPanel.add(sbutton);
+		controlPanel.add(searchButton);
 		mainFrame.setVisible(true);
-		Button cbutton = new Button("CLICK HERE FOR GRAPHICS VIEW");
+		Button visualisingButton = new Button("CLICK HERE FOR VISUALISING");
 		Button close=new Button("Close");
 		close.setFont(font);
-		cbutton.setFont(font);
-		sbutton.addActionListener(new ActionListener() {
+		visualisingButton.setFont(font);
+		searchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
 				try {
-					if((userText.getText().length()<=3)||(userText.getText().matches("[0-9]+")))//testing if input contains invalid or desired minimum char to carryout the operation
-					{
+					if((userText.getText().length()<=3)||(userText.getText().matches("[0-9]+"))){//testing if input contains invalid or desired minimum char to carryout the operation
 						Frame window=new Frame();
-						dt=new Dialog(window,"alert",true);
-						dt.setLayout(new FlowLayout());
+						dialog=new Dialog(window,"alert",true);
+						dialog.setLayout(new FlowLayout());
 						Button ok=new Button("OK");
-						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dt.setVisible(false);}});
-						dt.add(new Label("Click OK and give valid input"));
-						dt.setTitle("Check input");
-						dt.setBounds(900,350,900,500);
-						dt.setBackground(null);
-						dt.add(ok);
-						dt.pack();
-						dt.setVisible(true);
+						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dialog.setVisible(false);}});
+						dialog.add(new Label("Click OK and give valid input"));
+						dialog.setTitle("Check input");
+						dialog.setBounds(900,350,900,500);
+						dialog.setBackground(null);
+						dialog.add(ok);
+						dialog.pack();
+						dialog.setVisible(true);
 						System.exit(5);
 					}
-					else
-					{
+					else{
 						String data=searchTweet(twitter,userText.getText());
 						System.out.println("After returned:"+data);
 						statusLabel = new Label();        
@@ -431,12 +411,11 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 						final TextArea result=new TextArea(data,80,150);
 						endPanel.add(statusLabel);
 						endPanel.add(result);
-						controlPanel.add(cbutton);
+						controlPanel.add(visualisingButton);
 						controlPanel.add(close);
 						mainFrame.setVisible(true);
 					}
 				} catch (IOException e1) {
-
 					e1.printStackTrace();
 				}         
 			}
@@ -447,9 +426,9 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 			}
 		});  
 
-		cbutton.addActionListener(new ActionListener() {
+		visualisingButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
-				chartd("Comparision between Indian and Foreign twitter users"); //Chart name passed to the constructor
+				chartd("Comparison between Indian and Foreign twitter users for the topic"+userText.getText()); //Chart name passed to the constructor
 				pack( );        
 				RefineryUtilities.centerFrameOnScreen(mainFrame);        
 				setVisible( true );         
@@ -457,8 +436,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		});  
 	}
 
-	public void chartd(String chartTitle )
-	{
+	public void chartd(String chartTitle ){
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle,           
 				"Country",            
 				"No. of users", 
@@ -473,9 +451,8 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 
 
 
-	public static String searchTweet(Twitter tw, String word) throws IOException //function which carries out the separation of the tweet based on location
-	{
-		String data = " ";
+	public static String searchTweet(Twitter tw, String word) throws IOException{ //function which carries out the separation of the tweet based on location
+		StringBuilder data = new StringBuilder();
 		String state="INDIA india Andhra Pradesh Arunachal Pradesh Assam Bihar Chhattisgarh Goa Gujarat Haryana Himachal Pradesh Jammu and Kashmir Jharkhand Karnataka Kerala Madhya Pradesh Maharashtra Manipur Meghalaya Mizoram Nagaland Orissa Punjab Rajasthan Sikkim TamilNadu Tripura Uttarakhand Uttar Pradesh West Bengal Tamil Nadu Tripura Andaman and Nicobar Islands Chandigarh Dadra and Nagar Haveli Daman and Diu Delhi Lakshadweep Pondicherry ";
 		File fp = new File("/home/siva/Downloads/city.txt");
 		Scanner scanner=new Scanner(fp);
@@ -484,162 +461,210 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 			list.add(scanner.nextLine()); 
 		}
 		scanner.close();
-		try { int count=1;
-		System.out.println("Search in progress...");
-		Query query = new Query(word);
-		QueryResult result;
-		do {
-			result = tw.search(query);
-			List<Status> tweets = result.getTweets();
-			for (Status tweet : tweets) {
-				if(tweet.getPlace()!=null)
-				{System.out.println(tweet.getUser().getName() + " - "+"Place : "+tweet.getPlace()+"Location:"+tweet.getUser().getLocation());
-				if(tweet.getPlace().getCountryCode().equalsIgnoreCase("IN")||(tweet.getPlace().getCountryCode().equalsIgnoreCase("IND")))     
-				{indian+=1;
-
-				if(findSentiment(tweet.getText())==1)
-				{i_two++;System.out.println("\n--Negative--\n");}
-				else if(findSentiment(tweet.getText())==2)
-				{i_one++;System.out.println("\n--Neutral--\n");}
-				else
-				{i_three++;System.out.println("\n--Positive--\n");}
-
-				}
-				else                     
-				{
-					foreign+=1;
-
-					if(findSentiment(tweet.getText())==1)
-					{f_two++;System.out.println("\n--Negative--\n");}
-					else if(findSentiment(tweet.getText())==2)
-					{f_one++;System.out.println("\n--Neutral--\n");}
-					else
-					{f_three++;System.out.println("\n--Positive--\n");}                       
-
-				}
-				}
-				else
-				{   System.out.println(tweet.getUser().getName() + " - "+"Location:"+tweet.getUser().getLocation()+"\tTime:"+tweet.getUser().getUtcOffset());               	   
-				if(list.contains(tweet.getUser().getLocation())&&(tweet.getUser().getLocation().length()>=0))
-				{
-					indian+=1;
-
-					if(findSentiment(tweet.getText())==1)
-					{i_two++;System.out.println("\n--Negative--\n");}
-					else if(findSentiment(tweet.getText())==2)
-					{i_one++;System.out.println("\n--Neutral--\n");}
-					else
-					{i_three++;System.out.println("\n--Positive--\n");}
-
-
-				}
-				else{
-					if(((tweet.getUser().getLocation().contains("India"))||(tweet.getUser().getLocation().contains(state))))
-					{
-						indian+=1;
-
-						if(findSentiment(tweet.getText())==1)
-						{i_two++;System.out.println("\n--Negative--\n");}
-						else if(findSentiment(tweet.getText())==2)
-						{i_one++;System.out.println("\n--Neutral--\n");}
-						else
-						{i_three++;System.out.println("\n--Positive--\n");}
-					}
-					else
-					{  	if((tweet.getUser().getUtcOffset()!=19800)&&(tweet.getUser().getUtcOffset()!=-1))
-					{
-						foreign+=1;
-
-						if(findSentiment(tweet.getText())==1)
-						{f_two++;System.out.println("\n--Negative--\n");}
-						else if(findSentiment(tweet.getText())==2)
-						{f_one++;System.out.println("\n--Neutral--\n");}
-						else
-						{f_three++;System.out.println("\n--Positive--\n");}   
-
-					}
-					else{ 
-						if((tweet.getUser().getUtcOffset()==-1))
-						{ if((tweet.getUser().getLocation().length()==0)||(tweet.getUser().getLocation().length()==1))
-							irr+=1;
-						else
-						{
-
-							foreign+=1;
-
-							if(findSentiment(tweet.getText())==1)
-							{f_two++;System.out.println("\n--Negative--\n");}
-							else if(findSentiment(tweet.getText())==2)
-							{f_one++;System.out.println("\n--Neutral--\n");}
-							else
-							{f_three++;System.out.println("\n--Positive--\n");}   
-
-						}
-						}
-						else	
-						{
-							if((tweet.getUser().getLocation().length()==0)||(tweet.getUser().getLocation().length()==1))
-							{
-								foreign+=1;
-
-								if(findSentiment(tweet.getText())==1)
-								{f_two++;System.out.println("\n--Negative--\n");}
-								else if(findSentiment(tweet.getText())==2)
-								{f_one++;System.out.println("\n--Neutral--\n");}
-								else
-								{f_three++;System.out.println("\n--Positive--\n");}   
+		try {
+			int count=1;
+			System.out.println("Search in progress...");
+			Query query = new Query(word);
+			QueryResult result;
+			do {
+				result = tw.search(query);
+				List<Status> tweets = result.getTweets();
+				for (Status tweet : tweets) {
+					if(tweet.getPlace()!=null){
+						System.out.println(tweet.getUser().getName() + " - "+"Place : "+tweet.getPlace()+"Location:"+tweet.getUser().getLocation());
+						if(tweet.getPlace().getCountryCode().equalsIgnoreCase("IN")||(tweet.getPlace().getCountryCode().equalsIgnoreCase("IND"))){
+							indian+=1;
+							int score = findSentiment(tweet.getText());
+							System.out.println("Score:"+score);
+							if(score  <= 1){
+								indiaOne++;
+								System.out.println("\n--Negative--\n");
+							}
+							else if(score == 2){
+								indiaTwo++;
+								System.out.println("\n--Neutral--\n");
 							}
 							else{
-								if(!(tweet.getUser().getLocation().contains("Lanka")))
-								{
-									indian+=1;
-
-									if(findSentiment(tweet.getText())==1)
-									{i_two++;System.out.println("\n--Negative--\n");}
-									else if(findSentiment(tweet.getText())==2)
-									{i_one++;System.out.println("\n--Neutral--\n");}
-									else
-									{i_three++;System.out.println("\n--Positive--\n");}
+								indiaThree++;
+								System.out.println("\n--Positive--\n");
+							}
+						}
+						else{
+							foreign+=1;
+							int score = findSentiment(tweet.getText());
+							System.out.println("Score:"+score);
+							if(score  <= 1){
+								foreignOne++;
+								System.out.println("\n--Negative--\n");
+							}
+							else if(score == 2){
+								foreignTwo++;
+								System.out.println("\n--Neutral--\n");
+							}
+							else{
+								foreignThree++;
+								System.out.println("\n--Positive--\n");
+							}                       
+						}
+					}
+					else{   
+						System.out.println(tweet.getUser().getName() + " - "+"Location:"+tweet.getUser().getLocation()+"\tTime:"+tweet.getUser().getUtcOffset());               	   
+						if(list.contains(tweet.getUser().getLocation())&&(tweet.getUser().getLocation().length()>=0)){
+							indian+=1;
+							int score = findSentiment(tweet.getText());
+							System.out.println("Score:"+score);
+							if(score  <= 1){
+								indiaOne++;
+								System.out.println("\n--Negative--\n");
+							}
+							else if(score == 2){
+								indiaTwo++;
+								System.out.println("\n--Neutral--\n");
+							}
+							else{
+								indiaThree++;
+								System.out.println("\n--Positive--\n");
+							}
+						}
+						else{
+							if(((tweet.getUser().getLocation().contains("India"))||(tweet.getUser().getLocation().contains(state)))){
+								indian+=1;
+								int score = findSentiment(tweet.getText());
+								System.out.println("Score:"+score);
+								if(score  <= 1){
+									indiaOne++;
+									System.out.println("\n--Negative--\n");
 								}
-								else
-								{
+								else if(score == 2){
+									indiaTwo++;
+									System.out.println("\n--Neutral--\n");
+								}
+								else{
+									indiaThree++;
+									System.out.println("\n--Positive--\n");
+								}
+							}
+							else{  	
+								if((tweet.getUser().getUtcOffset()!=19800)&&(tweet.getUser().getUtcOffset()!=-1)){
 									foreign+=1;
-
-									if(findSentiment(tweet.getText())==1)
-									{f_two++;System.out.println("\n--Negative--\n");}
-									else if(
-											findSentiment(tweet.getText())==2)
-									{f_one++;System.out.println("\n--Neutral--\n");}
-									else
-									{f_three++;System.out.println("\n--Positive--\n");}   
+									int score = findSentiment(tweet.getText());
+									System.out.println("Score:"+score);
+									if(score  <= 1){
+										foreignOne++;
+										System.out.println("\n--Negative--\n");
+									}
+									else if(score == 2){
+										foreignTwo++;
+										System.out.println("\n--Neutral--\n");
+									}
+									else{
+										foreignThree++;
+										System.out.println("\n--Positive--\n");
+									}   
+								}
+								else{ 
+									if((tweet.getUser().getUtcOffset()==-1)){ 
+										if((tweet.getUser().getLocation().length()==0)||(tweet.getUser().getLocation().length()==1))
+											irr+=1;
+										else{
+											foreign+=1;
+											int score = findSentiment(tweet.getText());
+											System.out.println("Score:"+score);
+											if(score  <= 1){
+												foreignOne++;
+												System.out.println("\n--Negative--\n");
+											}
+											else if(score == 2){
+												foreignTwo++;
+												System.out.println("\n--Neutral--\n");
+											}
+											else{
+												foreignThree++;
+												System.out.println("\n--Positive--\n");
+											}   
+										}
+									}
+									else{
+										if((tweet.getUser().getLocation().length()==0)||(tweet.getUser().getLocation().length()==1)){
+											foreign+=1;
+											int score = findSentiment(tweet.getText());
+											System.out.println("Score:"+score);
+											if(score  <= 1){
+												foreignOne++;
+												System.out.println("\n--Negative--\n");
+											}
+											else if(score == 2){
+												foreignTwo++;
+												System.out.println("\n--Neutral--\n");
+											}
+											else{
+												foreignThree++;
+												System.out.println("\n--Positive--\n");
+											}    
+										}	
+										else{
+											if(!(tweet.getUser().getLocation().contains("Lanka"))){
+												indian+=1;
+												int score = findSentiment(tweet.getText());
+												System.out.println("Score:"+score);
+												if(score  <= 1){
+													indiaOne++;
+													System.out.println("\n--Negative--\n");
+												}
+												else if(score == 2){
+													indiaTwo++;
+													System.out.println("\n--Neutral--\n");
+												}
+												else{
+													indiaThree++;
+													System.out.println("\n--Positive--\n");
+												}	 
+											}
+											else{
+												foreign+=1;
+												int score = findSentiment(tweet.getText());
+												System.out.println("Score:"+score);
+												if(score  <= 1){
+													foreignOne++;
+													System.out.println("\n--Negative--\n");
+												}
+												else if(score == 2){
+													foreignTwo++;
+													System.out.println("\n--Neutral--\n");
+												}
+												else{
+													foreignThree++;
+													System.out.println("\n--Positive--\n");
+												}    
+											}
+										}
+									}
 								}
 							}
 						}
 					}
+					{
+					FileWriter file = new FileWriter("/home/siva/Documents/file.txt",true);
+					BufferedWriter bufferedWriter = new BufferedWriter(file);
+					bufferedWriter.flush();
+					data.append("\n\n"+count+". \nNAME:"+tweet.getUser().getName()+"\nLocation:"+tweet.getUser().getLocation()+" - "+"\nTWEET:"+tweet.getText()+"\nScore:"+findSentiment(tweet.getText()));
+					bufferedWriter.append("\nName:"+tweet.getUser().getName()+ " - "+"Location:"+tweet.getUser().getLocation()+"\nTweet:"+tweet.getText()+"\nScore:"+findSentiment(tweet.getText())+"\n");
+					bufferedWriter.close();
+					count+=1;
 					}
-				}
-				}
-
-				{FileWriter file = new FileWriter("/home/siva/Documents/file.txt",true);
-				BufferedWriter buf = new BufferedWriter(file);
-				buf.flush();
-				data+="\n\n"+count+". \nNAME:"+tweet.getUser().getName()+"\nLocation:"+tweet.getUser().getLocation()+" - "+"\nTWEET:"+tweet.getText();
-				buf.append("\nName:"+tweet.getUser().getName()+ " - "+"Location:"+tweet.getUser().getLocation()+"\nTweet:"+tweet.getText()+"\n");
-				buf.close();
-				count+=1;}
-			}//end for
-		}while ((query = result.nextQuery()) != null);//end do while
-
+				}//end for
+			}while ((query = result.nextQuery()) != null);//end do while
 		}///end try
 		catch (TwitterException te) {
 			te.printStackTrace();
 			System.out.println("Failed to search tweets: " + te.getMessage());
-			data="\nFailed to search tweets because of rate limiting...";
+			data.append("\nFailed to search tweets because of rate limiting...");
 		}
 		System.out.println("\nIndia:"+indian+"\nForeign:"+foreign+"\nOther:"+other+"\nIrr:"+irr);
-		System.out.println("pos:"+i_three+"Neu:"+i_two+"neg:"+i_one);
-		System.out.println("fpos:"+f_three+"Neu:"+f_two+"neg:"+f_one);
-
-		return data;
+		System.out.println("pos:"+indiaThree+"Neu:"+indiaTwo+"neg:"+indiaOne);
+		System.out.println("fpos:"+foreignThree+"Neu:"+foreignTwo+"neg:"+foreignOne);
+		//int score = findSentiment(word);
+		//System.out.println("Score:"+score);
+		return data.toString();
 	}	
 }
