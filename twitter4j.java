@@ -448,7 +448,20 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	}   
 
 
-
+    public static int  getSentimentAndReturnScore(String tweet){
+    	int score = findSentiment(tweet);
+		System.out.println("Score:"+score);
+		if(score  <= 1){
+			System.out.println("\n--Negative--\n");
+		}
+		else if(score == 2){
+			System.out.println("\n--Neutral--\n");
+		}
+		else{
+			System.out.println("\n--Positive--\n");
+		}
+    	return score;
+    }
 
 
 	public static String searchTweet(Twitter tw, String word) throws IOException{ //function which carries out the separation of the tweet based on location
@@ -470,97 +483,58 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 				result = tw.search(query);
 				List<Status> tweets = result.getTweets();
 				for (Status tweet : tweets) {
+					int score = getSentimentAndReturnScore(tweet.getText());
 					if(tweet.getPlace()!=null){
 						System.out.println(tweet.getUser().getName() + " - "+"Place : "+tweet.getPlace()+"Location:"+tweet.getUser().getLocation());
 						if(tweet.getPlace().getCountryCode().equalsIgnoreCase("IN")||(tweet.getPlace().getCountryCode().equalsIgnoreCase("IND"))){
 							indian+=1;
-							int score = findSentiment(tweet.getText());
-							System.out.println("Score:"+score);
-							if(score  <= 1){
+							if(score  <= 1)
 								indiaOne++;
-								System.out.println("\n--Negative--\n");
-							}
-							else if(score == 2){
+							else if(score == 2)
 								indiaTwo++;
-								System.out.println("\n--Neutral--\n");
-							}
-							else{
+							else
 								indiaThree++;
-								System.out.println("\n--Positive--\n");
-							}
 						}
 						else{
 							foreign+=1;
-							int score = findSentiment(tweet.getText());
-							System.out.println("Score:"+score);
-							if(score  <= 1){
+							if(score  <= 1)
 								foreignOne++;
-								System.out.println("\n--Negative--\n");
-							}
-							else if(score == 2){
+							else if(score == 2)
 								foreignTwo++;
-								System.out.println("\n--Neutral--\n");
-							}
-							else{
-								foreignThree++;
-								System.out.println("\n--Positive--\n");
-							}                       
+							else
+								foreignThree++;                       
 						}
 					}
 					else{   
 						System.out.println(tweet.getUser().getName() + " - "+"Location:"+tweet.getUser().getLocation()+"\tTime:"+tweet.getUser().getUtcOffset());               	   
 						if(list.contains(tweet.getUser().getLocation())&&(tweet.getUser().getLocation().length()>=0)){
 							indian+=1;
-							int score = findSentiment(tweet.getText());
-							System.out.println("Score:"+score);
-							if(score  <= 1){
+							if(score  <= 1)
 								indiaOne++;
-								System.out.println("\n--Negative--\n");
-							}
-							else if(score == 2){
+							else if(score == 2)
 								indiaTwo++;
-								System.out.println("\n--Neutral--\n");
-							}
-							else{
+							else
 								indiaThree++;
-								System.out.println("\n--Positive--\n");
-							}
 						}
 						else{
 							if(((tweet.getUser().getLocation().contains("India"))||(tweet.getUser().getLocation().contains(state)))){
 								indian+=1;
-								int score = findSentiment(tweet.getText());
-								System.out.println("Score:"+score);
-								if(score  <= 1){
+								if(score  <= 1)
 									indiaOne++;
-									System.out.println("\n--Negative--\n");
-								}
-								else if(score == 2){
+								else if(score == 2)
 									indiaTwo++;
-									System.out.println("\n--Neutral--\n");
-								}
-								else{
+								else
 									indiaThree++;
-									System.out.println("\n--Positive--\n");
-								}
 							}
 							else{  	
 								if((tweet.getUser().getUtcOffset()!=19800)&&(tweet.getUser().getUtcOffset()!=-1)){
 									foreign+=1;
-									int score = findSentiment(tweet.getText());
-									System.out.println("Score:"+score);
-									if(score  <= 1){
+									if(score  <= 1)
 										foreignOne++;
-										System.out.println("\n--Negative--\n");
-									}
-									else if(score == 2){
+									else if(score == 2)
 										foreignTwo++;
-										System.out.println("\n--Neutral--\n");
-									}
-									else{
-										foreignThree++;
-										System.out.println("\n--Positive--\n");
-									}   
+									else
+										foreignThree++;   
 								}
 								else{ 
 									if((tweet.getUser().getUtcOffset()==-1)){ 
@@ -568,74 +542,42 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 											irr+=1;
 										else{
 											foreign+=1;
-											int score = findSentiment(tweet.getText());
-											System.out.println("Score:"+score);
-											if(score  <= 1){
+											if(score  <= 1)
 												foreignOne++;
-												System.out.println("\n--Negative--\n");
-											}
-											else if(score == 2){
+											else if(score == 2)
 												foreignTwo++;
-												System.out.println("\n--Neutral--\n");
-											}
-											else{
-												foreignThree++;
-												System.out.println("\n--Positive--\n");
-											}   
+											else
+												foreignThree++;   
 										}
 									}
 									else{
 										if((tweet.getUser().getLocation().length()==0)||(tweet.getUser().getLocation().length()==1)){
 											foreign+=1;
-											int score = findSentiment(tweet.getText());
-											System.out.println("Score:"+score);
-											if(score  <= 1){
+											if(score  <= 1)
 												foreignOne++;
-												System.out.println("\n--Negative--\n");
-											}
-											else if(score == 2){
+											else if(score == 2)
 												foreignTwo++;
-												System.out.println("\n--Neutral--\n");
-											}
-											else{
-												foreignThree++;
-												System.out.println("\n--Positive--\n");
-											}    
+											else
+												foreignThree++;    
 										}	
 										else{
 											if(!(tweet.getUser().getLocation().contains("Lanka"))){
 												indian+=1;
-												int score = findSentiment(tweet.getText());
-												System.out.println("Score:"+score);
-												if(score  <= 1){
+												if(score  <= 1)
 													indiaOne++;
-													System.out.println("\n--Negative--\n");
-												}
-												else if(score == 2){
+												else if(score == 2)
 													indiaTwo++;
-													System.out.println("\n--Neutral--\n");
-												}
-												else{
-													indiaThree++;
-													System.out.println("\n--Positive--\n");
-												}	 
+												else
+													indiaThree++; 
 											}
 											else{
 												foreign+=1;
-												int score = findSentiment(tweet.getText());
-												System.out.println("Score:"+score);
-												if(score  <= 1){
+												if(score  <= 1)
 													foreignOne++;
-													System.out.println("\n--Negative--\n");
-												}
-												else if(score == 2){
+												else if(score == 2)
 													foreignTwo++;
-													System.out.println("\n--Neutral--\n");
-												}
-												else{
-													foreignThree++;
-													System.out.println("\n--Positive--\n");
-												}    
+												else
+													foreignThree++;    
 											}
 										}
 									}
@@ -661,8 +603,8 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 			data.append("\nFailed to search tweets because of rate limiting...");
 		}
 		System.out.println("\nIndia:"+indian+"\nForeign:"+foreign+"\nOther:"+other+"\nIrr:"+irr);
-		System.out.println("pos:"+indiaThree+"Neu:"+indiaTwo+"neg:"+indiaOne);
-		System.out.println("fpos:"+foreignThree+"Neu:"+foreignTwo+"neg:"+foreignOne);
+		System.out.println("India +ve:"+indiaThree+"India-Neutral:"+indiaTwo+"India-ve:"+indiaOne);
+		System.out.println("Foreign+ve:"+foreignThree+"Foreign-Neutral:"+foreignTwo+"Foreign-ve:"+foreignOne);
 		//int score = findSentiment(word);
 		//System.out.println("Score:"+score);
 		return data.toString();
