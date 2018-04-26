@@ -1,6 +1,5 @@
 package twitter4j;
 import java.awt.*;
-import java.lang.Object.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.FileWriter;
@@ -9,9 +8,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 import java.io.BufferedWriter;
-
-import org.omg.CORBA.Environment;
-
 import twitter4j.conf.ConfigurationBuilder;
 import twitter4j.Query;
 import twitter4j.QueryResult;
@@ -19,24 +15,19 @@ import twitter4j.Twitter;
 import twitter4j.TwitterException;
 import twitter4j.TwitterFactory;
 import twitter4j.Status;
-
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel; 
 import org.jfree.chart.JFreeChart; 
-import org.jfree.chart.plot.CategoryPlot;
 import org.jfree.chart.plot.PlotOrientation;
 import org.jfree.data.category.CategoryDataset; 
 import org.jfree.data.category.DefaultCategoryDataset; 
 import org.jfree.ui.ApplicationFrame; 
 import org.jfree.ui.RefineryUtilities; 
-
 import edu.stanford.nlp.ling.CoreAnnotations;
-import edu.stanford.nlp.ling.Sentence;
 import edu.stanford.nlp.neural.rnn.RNNCoreAnnotations;
 import edu.stanford.nlp.pipeline.Annotation;
 import edu.stanford.nlp.pipeline.StanfordCoreNLP;
 import edu.stanford.nlp.sentiment.SentimentCoreAnnotations;
-import edu.stanford.nlp.sentiment.SentimentCoreAnnotations.SentimentAnnotatedTree;
 import edu.stanford.nlp.trees.Tree;
 import edu.stanford.nlp.util.CoreMap;
 
@@ -51,7 +42,18 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	protected static int indiaOne=0,indiaTwo=0,indiaThree=0,foreignOne=0,foreignTwo=0,foreignThree=0;
 	public static final int flag1=0;
 	public static  Dialog dialog;
-
+	public static boolean flag=false;
+	public Frame mainFrame;
+	public Label h1,h2,h3;
+	public Panel header;
+	public Panel controlPanel;
+	public Label searchLabel;
+	public Label statusLabel;
+	public Panel endPanel;
+	public Label lab;
+	Checkbox searchTweet,activeSearch;
+	CheckboxGroup radio;
+	Image img = Toolkit.getDefaultToolkit().createImage("bg.png");
 	public static int findSentiment(String tweet) {   //function that finds the polarity of the extracted tweet
 		StanfordCoreNLP pipeline;
 		pipeline = new StanfordCoreNLP("MyPropFile.properties");
@@ -75,73 +77,59 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		return mainSentiment;
 	}
 
-
-
-	public twitter4j(String title)
-	{	super(title);
-
+	public twitter4j(String title){
+		super(title);
 	}
-	public static boolean flag=false;
-	public Frame mainFrame;
-	public Label h1,h2,h3;
-	public Panel header;
-	public Panel controlPanel;
-	public Label searchLabel;
-	public Label statusLabel;
-	public Panel endPanel;
-	public Label lab;
-	Checkbox searchTweet,activeSearch;
-	CheckboxGroup radio;
-	Image img = Toolkit.getDefaultToolkit().createImage("bg.png");
-	public void paint(Graphics g)
-	{
+	
+	public void paint(Graphics g){
 		g.drawImage(img, 0, 0, null);
 	}
-	public void initi()  //Chart init parameters
-	{  setLayout(null);
-	setBackground(Color.orange);
-	setForeground(Color.blue);
-	Label h1=new Label();
-	Font font = new Font("TimesNewRoman", Font.BOLD,15);
-	h1.setText("WELCOME TO TWITTER DATA MINING");
-	h1.setFont(font);
-	h1.setForeground(Color.black);
-	h1.setBackground(Color.yellow);
-	h1.setBounds(740,50,320,20);
-	Label h2=new Label();
-	h2.setText("SELECT ANY ONE OF THE OPERATION THAT YOU WISH TO PERFORM:");
-	h2.setForeground(Color.red);
-	h2.setBackground(Color.yellow);
-	h2.setFont(font);
-	h2.setBounds(600,90,580,20);
-	this.setSize(new Dimension(2500,2500));
-	radio=new CheckboxGroup(); 
-	searchTweet=new Checkbox("Advanced Search Tweet",radio, false);
-	activeSearch=new Checkbox("Status update / Extract tweet",radio, false);
-	searchTweet.addItemListener(this);
-	activeSearch.addItemListener(this);
-	searchTweet.setBounds(850,130,165,15);
-	activeSearch.setBounds(850,170,266,15);
-	activeSearch.setFont(font);
-	searchTweet.setFont(font);
-	add(h1);
-	add(h2);
-	add(activeSearch);
-	add(searchTweet);
-	setVisible(true);
+	public void init(){  //Chart init parameters
+		setLayout(null);
+		setBackground(Color.orange);
+		setForeground(Color.blue);
+		Label h1=new Label();
+		Font font = new Font("TimesNewRoman", Font.BOLD,15);
+		h1.setText("WELCOME TO TWITTER DATA MINING");
+		h1.setFont(font);
+		h1.setForeground(Color.black);
+		h1.setBackground(Color.yellow);
+		h1.setBounds(740,50,320,20);
+		Label h2=new Label();
+		h2.setText("SELECT ANY ONE OF THE OPERATION THAT YOU WISH TO PERFORM:");
+		h2.setForeground(Color.red);
+		h2.setBackground(Color.yellow);
+		h2.setFont(font);
+		h2.setBounds(600,90,580,20);
+		this.setSize(new Dimension(2500,2500));
+		radio=new CheckboxGroup(); 
+		searchTweet=new Checkbox("Advanced Search - Topic",radio, false);
+		activeSearch=new Checkbox("Status update / Extract tweets",radio, false);
+		searchTweet.addItemListener(this);
+		activeSearch.addItemListener(this);
+		searchTweet.setBounds(850,130,165,15);
+		activeSearch.setBounds(850,170,266,15);
+		activeSearch.setFont(font);
+		searchTweet.setFont(font);
+		add(h1);
+		add(h2);
+		add(activeSearch);
+		add(searchTweet);
+		setVisible(true);
 	}
 
 	private CategoryDataset createDataset( ){  
+		//function to init the bar chart legends
 		final DefaultCategoryDataset dataset = new DefaultCategoryDataset();  
 		final String population    = "population";
 		final String india         = "India";        
 		final String restOfIndia   = "Foreign";
-		final String iNegative 	   = "Ind-Negative";        
-		final String iNeutral      = "Ind-Neutral";
-		final String iPositive     = "Ind-Positive";
-		final String fNegative     = "For-Negative";        
-		final String fNeutral      = "For-Neutral";
-		final String fPositive     = "For-Positive";
+		final String iNegative 	   = "India -ve";        
+		final String iNeutral      = "India Neutral";
+		final String iPositive     = "India +ve";
+		final String fNegative     = "Foreign -ve";        
+		final String fNeutral      = "Foreign Neutral";
+		final String fPositive     = "Foreign +ve";
 		final String iPopulation   = "Indian";
 		final String fPopulation   = "Foreign";
 		dataset.addValue( indian,       population,india);        
@@ -174,10 +162,11 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 		.setOAuthAccessToken("275418825-MpiHg0tAnrm26UtbFxsTHgdohB9ji3d2j2yGZinF")
 		.setOAuthAccessTokenSecret("4OsnHrUgBM9ovoeqpE4ovCopoiEg6nNepDrLry8pdYatJ");
 		cb.build();
-		chart.initi();
+		chart.init();
 	}
 
 	public void prepareGUI(){
+		//function to prepare GUI
 		mainFrame = new Frame("Twitter Data Mining");
 		mainFrame.setSize(2500,2500);
 		mainFrame.setBackground(Color.orange);
@@ -232,6 +221,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	}
 
 	public void showTextField(){
+		//function to process update or extract tweet option
 		Twitter twitter = new TwitterFactory().getInstance();
 		Font font = new Font("Courier", Font.BOLD,16);
 		Label h1  = new Label();
@@ -303,7 +293,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 					else{
 						String status;
 						status = extractText.getText();
-						Status status1 = twitter.updateStatus(status);
+						twitter.updateStatus(status);
 					}				
 				}
 				catch (TwitterException e1) {
@@ -352,6 +342,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 
 
 	public void showTextFieldDemo(){
+		//function to get user  input for advanced search
 		Twitter twitter = new TwitterFactory().getInstance();
 		Font font = new Font("Courier", Font.BOLD,12);
 		h1.setText("WELCOME TO TWITTER DATA MINING");
@@ -389,9 +380,9 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 						Frame window=new Frame();
 						dialog=new Dialog(window,"alert",true);
 						dialog.setLayout(new FlowLayout());
-						Button ok=new Button("OK");
+						Button ok=new Button("Close");
 						ok.addActionListener(new ActionListener(){public void actionPerformed(ActionEvent e){twitter4j.dialog.setVisible(false);}});
-						dialog.add(new Label("Click OK and give valid input"));
+						dialog.add(new Label("Click Close and give valid input"));
 						dialog.setTitle("Check input");
 						dialog.setBounds(900,350,900,500);
 						dialog.setBackground(null);
@@ -428,7 +419,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 
 		visualisingButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e){  
-				chartd("Comparison between Indian and Foreign twitter users for the topic"+userText.getText()); //Chart name passed to the constructor
+				chartd("Comparison between Indian and Foreign twitter users for the topic "+userText.getText()); //Chart name passed to the constructor
 				pack( );        
 				RefineryUtilities.centerFrameOnScreen(mainFrame);        
 				setVisible( true );         
@@ -437,6 +428,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 	}
 
 	public void chartd(String chartTitle ){
+		//function to create barchart 
 		JFreeChart barChart = ChartFactory.createBarChart(chartTitle,           
 				"Country",            
 				"No. of users", 
@@ -449,6 +441,7 @@ public class twitter4j extends ApplicationFrame implements ItemListener
 
 
     public static int  getSentimentAndReturnScore(String tweet){
+    	//function to get sentiment score
     	int score = findSentiment(tweet);
 		System.out.println("Score:"+score);
 		if(score  <= 1){
@@ -464,7 +457,8 @@ public class twitter4j extends ApplicationFrame implements ItemListener
     }
 
 
-	public static String searchTweet(Twitter tw, String word) throws IOException{ //function which carries out the separation of the tweet based on location
+	public static String searchTweet(Twitter tw, String word) throws IOException{ 
+		//function which carries out the separation of the tweet based on location and carries out sentiment analysis
 		StringBuilder data = new StringBuilder();
 		String state="INDIA india Andhra Pradesh Arunachal Pradesh Assam Bihar Chhattisgarh Goa Gujarat Haryana Himachal Pradesh Jammu and Kashmir Jharkhand Karnataka Kerala Madhya Pradesh Maharashtra Manipur Meghalaya Mizoram Nagaland Orissa Punjab Rajasthan Sikkim TamilNadu Tripura Uttarakhand Uttar Pradesh West Bengal Tamil Nadu Tripura Andaman and Nicobar Islands Chandigarh Dadra and Nagar Haveli Daman and Diu Delhi Lakshadweep Pondicherry ";
 		File fp = new File("/home/siva/Downloads/city.txt");
